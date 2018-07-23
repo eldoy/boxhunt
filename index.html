@@ -26,6 +26,11 @@
   canvas.height = yLength * squareHeight
   var ctx = canvas.getContext('2d')
 
+  var RIGHT = 'ArrowRight'
+  var LEFT = 'ArrowLeft'
+  var UP = 'ArrowUp'
+  var DOWN = 'ArrowDown'
+
   function init () {
     dead = false
     headX = 0
@@ -82,10 +87,10 @@
 
   function move () {
     data[headX][headY] = 0
-    if (direction === 'ArrowRight' && typeof data[++headX] === 'undefined' ||
-        direction === 'ArrowLeft' && typeof data[--headX] === 'undefined' ||
-        direction === 'ArrowUp' && typeof data[headX][--headY] === 'undefined' ||
-        direction === 'ArrowDown' && typeof data[headX][++headY] === 'undefined') {
+    if (direction === RIGHT && typeof data[++headX] === 'undefined' ||
+        direction === LEFT && typeof data[--headX] === 'undefined' ||
+        direction === UP && typeof data[headX][--headY] === 'undefined' ||
+        direction === DOWN && typeof data[headX][++headY] === 'undefined') {
       return die()
     }
 
@@ -117,9 +122,11 @@
     if (dead) {
       return init()
     }
-    direction = event.key
-    ticker = clearInterval(ticker) || setInterval(move, speed)
-    move()
+    if ([UP, DOWN, RIGHT, LEFT].includes(event.key)) {
+      direction = event.key
+      ticker = clearInterval(ticker) || setInterval(move, speed)
+      move()
+    }
   })
 
   init()
