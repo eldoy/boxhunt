@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>BoxHunt</title>
+</head>
+<body>
+<canvas></canvas>
+<script>
+  var data
+  var headX
+  var headY
+  var meat
+  var dead
+  var ticker
+  var direction
+  var points
+  var speed
+  var minSpeed = 50
+  var increase = 10
+  var xLength = 20
+  var yLength = 20
+  var squareWidth = 20
+  var squareHeight = 20
+  var canvas = document.querySelector('canvas')
+  canvas.width = xLength * squareWidth
+  canvas.height = yLength * squareHeight
+  var ctx = canvas.getContext('2d')
+
+  function init () {
+    dead = false
+    headX = 0
+    headY = 0
+    points = 0
+    speed = 1000
+    data = []
+
+    var xData = []
+    for (var i = 0; i < xLength; i++) {
+      xData.push(0)
+    }
+
+    for (var j = 0; j < yLength; j++) {
+      data.push(xData.slice(0))
+    }
+
+    data[0][0] = 1
+
+    feed()
+    render()
+  }
+
+  function feed() {
+    do {
+      meat = [
+        Math.floor(Math.random() * xLength),
+        Math.floor(Math.random() * yLength)
+      ]
+    } while(data[meat[0]][meat[1]])
+  }
+
+  function render () {
+    if (dead) return
+
+    for (var i = 0; i < xLength; i++) {
+      for (var j = 0; j < yLength; j++) {
+        if (data[i][j]) {
+          ctx.fillStyle = '#ff0000'
+        } else {
+          ctx.fillStyle = '#000000'
+        }
+        ctx.fillRect(i * xLength, j * yLength, xLength, yLength)
+      }
+    }
+
+    ctx.fillStyle = '#ff00ff'
+    ctx.fillRect(meat[0] * xLength, meat[1] * yLength, xLength, yLength)
+
+    ctx.strokeStyle = '#ffffff'
+    ctx.font = '20px Arial'
+    ctx.strokeText('' + points, 5, 17)
+  }
+
+  function move () {
+    data[headX][headY] = 0
+    if (direction === 'ArrowRight' && typeof data[++headX] === 'undefined' ||
+        direction === 'ArrowLeft' && typeof data[--headX] === 'undefined' ||
+        direction === 'ArrowUp' && typeof data[headX][--headY] === 'undefined' ||
+        direction === 'ArrowDown' && typeof data[headX][++headY] === 'undefined') {
+      return die()
+    }
+
+    data[headX][headY] = 1
+
+    if(headX === meat[0] && headY === meat[1]) {
+      points++
+      speed -= increase
+      if (speed < minSpeed) {
+        speed = minSpeed
+      }
+      feed()
+    }
+
+    render()
+  }
+
+  function die () {
+    dead = true
+    ticker = clearInterval(ticker)
+    ctx.font = '30px Arial'
+    ctx.strokeStyle = '#ffffff'
+    ctx.strokeText('Game over', 20, 60)
+    ctx.font = '20px Arial'
+    ctx.strokeText('Press any key to continue', 30, 90)
+  }
+
+  document.addEventListener('keydown', function (event) {
+    if (dead) {
+      return init()
+    }
+    direction = event.key
+    ticker = clearInterval(ticker) || setInterval(move, speed)
+    move()
+  })
+
+  init()
+
+</script>
+</body>
+</html>
